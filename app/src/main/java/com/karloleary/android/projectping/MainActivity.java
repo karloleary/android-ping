@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.view.View;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
     Button sendButton = null;
     EditText messageField = null;
@@ -19,24 +19,20 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        messageField = (EditText) findViewById(R.id.messageText);
+        sendButton = (Button) findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(this);
+    }
 
-        sendButton = (Button)findViewById(R.id.sendButton);
-        messageField = (EditText)findViewById(R.id.messageText);
+    public void onClick(View v) {
+        count++;
+        String dots = "";
+        for (int i=0; i<count; i++)
+            dots += ".";
+        sendButton.setText("Sending"+dots);
+        //String msg = String.valueOf(messageField.getText());
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                String dots = "";
-                for (int i=0; i<count; i++)
-                    dots += ".";
-                sendButton.setText("Sending"+dots);
-                String msg = String.valueOf(messageField.getText());
-
-                messageField.clearComposingText();
-
-            }
-        });
+        messageField.setText("");
     }
 
 

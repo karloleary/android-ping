@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Project Ping</string>
-
-    <string name="main_title">Project Ping</string>
+    <string name="main_title">Project Ping 3</string>
     <string name="action_settings">Settings</string>
 </resources>
