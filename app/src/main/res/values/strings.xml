@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Project Ping</string>
-    <string name="main_title">Project Ping 3</string>
+    <string name="main_title">Project Ping 8</string>
     <string name="action_settings">Settings</string>
+    <string name="ping_server_url_title">Ping Server URL</string>
+    <string name="ping_server_url_summary">Ping Server URL</string>
 </resources>
