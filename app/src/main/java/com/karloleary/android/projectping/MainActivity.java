@@ -1,7 +1,10 @@
 package com.karloleary.android.projectping;
 
 // http://simpledeveloper.com/network-on-main-thread-error-solution/
+// http://www.vogella.com/tutorials/AndroidBackgroundProcessing/article.html
 
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,8 +30,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     EditText messageField = null;
     TextView textOutput = null;
     String address = "http://karlolearyapps.com/ping.php";
-
     int count = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,61 +50,49 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         String dots = "";
         for (int i=0; i<count; i++)
             dots += ".";
-        sendButton.setText("Sending"+dots);
+        sendButton.setText("Sending "+dots);
+
         String msg = String.valueOf(messageField.getText());
 
         messageField.setText("");
-        textOutput.setText("Waiting on response");
+        textOutput.setText("Waiting on response\n\n");
         Toast.makeText(getBaseContext(),"Please wait, connecting to server.", Toast.LENGTH_LONG).show();
-        sendPing(msg);
-    }
 
-    private void sendPing(String msg) {
-        try{
-            HttpClient Client = new DefaultHttpClient();
-            String URL = address+"?msg="+ URLEncoder.encode(msg,"UTF-8");
-            textOutput.setText("URL = "+URL+"\n\n");
-
-            String response = null;
-
-            HttpGet httpget = new HttpGet(URL);
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            response = Client.execute(httpget, responseHandler);
-
-            textOutput.append("Response = "+response+"\n\n");
-            //Toast.makeText(getBaseContext(),"Response: "+response,Toast.LENGTH_LONG).show();
-        }
-        catch(UnsupportedEncodingException ex) {
-            //Toast.makeText(getBaseContext(),"Failure: "+ex.getMessage(),Toast.LENGTH_LONG).show();
-            textOutput.append("Failure1: "+ex.getMessage()+"\n\n");
-        }
-        catch(Exception ex) {
-            //Toast.makeText(getBaseContext(),"Failure: "+ex.getMessage(),Toast.LENGTH_LONG).show();
-            //textOutput.setText("Failure: "+ex.getMessage());
-            textOutput.append("Failure2: "+ex.toString()+"\n\n");
-        }
+        new SendMessageTask().execute(msg);
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    private class SendMessageTask extends AsyncTask<String, Void, String> {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        @Override
+        protected String doInBackground(String... m) {
+            String output = "";
+
+            try {
+                HttpClient Client = new DefaultHttpClient();
+                String URL = address+"?msg="+ URLEncoder.encode(m[0],"UTF-8");
+                output = "URL = "+URL+"\n\n";
+
+                HttpGet httpget = new HttpGet(URL);
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                output += "Response = "+Client.execute(httpget, responseHandler)+"\n\n";
+            }
+            catch(UnsupportedEncodingException ex) {
+                output += "Failure1: "+ex.getMessage()+"\n\n";
+            }
+            catch(Exception ex) {
+                output += "Failure2: "+ex.toString()+"\n\n";
+            }
+
+            return output;
         }
 
-        return super.onOptionsItemSelected(item);
+        @Override
+        protected void onPostExecute(String s) {
+            textOutput.append(s+"All Done!!!.");
+        }
     }
 }
+
+
