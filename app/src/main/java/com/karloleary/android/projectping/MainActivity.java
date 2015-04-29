@@ -3,12 +3,10 @@ package com.karloleary.android.projectping;
 // http://simpledeveloper.com/network-on-main-thread-error-solution/
 // http://www.vogella.com/tutorials/AndroidBackgroundProcessing/article.html
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.view.View;
@@ -26,39 +24,50 @@ import java.net.URLEncoder;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
+    DataStore dataStore = null;
     Button sendButton = null;
+    Button historyButton = null;
     EditText messageField = null;
     TextView textOutput = null;
     String address = "http://karlolearyapps.com/ping.php";
-    int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        messageField = (EditText) findViewById(R.id.messageText);
-        textOutput = (TextView) findViewById(R.id.textOutput);
         sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener(this);
+        historyButton = (Button) findViewById(R.id.historyButton);
+        historyButton.setOnClickListener(this);
 
+        messageField = (EditText) findViewById(R.id.messageText);
+        textOutput = (TextView) findViewById(R.id.textOutput);
         textOutput.setText("Blank");
+
+        dataStore = DataStore.getInstance();
     }
 
     public void onClick(View v) {
-        count++;
-        String dots = "";
-        for (int i=0; i<count; i++)
-            dots += ".";
-        sendButton.setText("Sending "+dots);
+        switch (v.getId()) {
+            case R.id.sendButton:
+                String msg = String.valueOf(messageField.getText());
 
-        String msg = String.valueOf(messageField.getText());
+                dataStore.addMessage(msg);
+                sendButton.setText("Sending [" + dataStore.getSize() + "]");
+                messageField.setText("");
+                textOutput.setText("Waiting on response\n\n");
 
-        messageField.setText("");
-        textOutput.setText("Waiting on response\n\n");
-        Toast.makeText(getBaseContext(),"Please wait, connecting to server.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Please wait, connecting to server.", Toast.LENGTH_SHORT).show();
 
-        new SendMessageTask().execute(msg);
+                new SendMessageTask().execute(msg);
+                break;
+
+            case R.id.historyButton:
+                Intent h = new Intent(this, HistoryActivity.class);
+                startActivity(h);
+                break;
+        }
     }
 
 
